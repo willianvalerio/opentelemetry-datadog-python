@@ -1,0 +1,51 @@
+receivers:
+  hostmetrics:
+    scrapers:
+      load:
+      cpu:
+      disk:
+      filesystem:
+      memory:
+      network:
+      paging:
+      process:    
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+processors:
+  batch:
+    timeout: 10s
+  resource:
+    attributes:
+    - key: datadog.host.name
+      value: telemetrylabs
+      action: upsert
+    
+exporters:
+  datadog/api: 
+    hostname: telemetrylabs
+    env: development
+    service: webapi.opentelemetry.datadog
+    version: 3
+    tags:
+      - service:webapi.opentelemetry.datadog
+      - env:development
+    api:
+      key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [datadog/api]
+    metrics:
+      receivers: [hostmetrics]
+      processors: [resource, batch]
+      exporters: [datadog/api]
+#    logs:
+#      receivers: [otlp]
+#      processors: [batch]
+#      exporters: [datadog/api]

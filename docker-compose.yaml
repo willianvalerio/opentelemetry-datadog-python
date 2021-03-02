@@ -1,0 +1,25 @@
+version: "3.7"
+services:
+  web:
+    build: app
+    links:
+      - otel-collector
+    environment:
+      # Configure Open Telemetry Collector Url
+      OTLP__ENDPOINT: "http://otel-collector:4317"
+    volumes:
+      - ./app/src/:/code  
+    ports:
+      - "5000:5000"
+    depends_on:
+      - otel-collector
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.19.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "1888:1888"   # pprof extension
+      - "13133:13133" # health_check extension
+      - "4317:4317"        # OTLP gRPC receiver
