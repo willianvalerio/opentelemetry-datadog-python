@@ -17,6 +17,11 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.19.0
     command: ["--config=/etc/otel-collector-config.yaml"]
+    environment:
+      - DD_ENV=otel
+      - DD_SERVICE=sanic-otel
+      - DD_API_KEY=${DD_API_KEY}
+      - HOSTNAME=macbook-willian
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
