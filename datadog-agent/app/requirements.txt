@@ -1,0 +1,5 @@
+Sanic==20.12.2
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+opentelemetry-instrumentation
