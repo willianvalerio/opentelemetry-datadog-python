@@ -23,7 +23,7 @@ services:
       DD_SERVICE: "sanic-otel"
       DD_VERSION: "6"
       DD_API_KEY: ${DD_API_KEY}
-      HOSTNAME: "macbook-willian"
+      HOSTNAME: "otel-collector"
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
