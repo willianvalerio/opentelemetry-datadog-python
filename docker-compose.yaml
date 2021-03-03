@@ -6,9 +6,10 @@ services:
       - otel-collector
     environment:
       # Configure Open Telemetry Collector Url
-      OTLP__ENDPOINT: "http://otel-collector:4317"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "otel-collector:4317"
+      DD_SERVICE: "sanic-otel"
     volumes:
-      - ./app/src/:/code  
+      - ./app/src/server.py:/code/server.py  
     ports:
       - "5000:5000"
     depends_on:
@@ -18,10 +19,11 @@ services:
     image: otel/opentelemetry-collector-contrib:0.19.0
     command: ["--config=/etc/otel-collector-config.yaml"]
     environment:
-      - DD_ENV=otel
-      - DD_SERVICE=sanic-otel
-      - DD_API_KEY=${DD_API_KEY}
-      - HOSTNAME=macbook-willian
+      DD_ENV: "otel"
+      DD_SERVICE: "sanic-otel"
+      DD_VERSION: "6"
+      DD_API_KEY: ${DD_API_KEY}
+      HOSTNAME: "macbook-willian"
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:

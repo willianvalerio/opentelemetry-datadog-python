@@ -22,18 +22,19 @@ processors:
     - key: datadog.host.name
       value: ${HOSTNAME}
       action: upsert
-    
+      
 exporters:
-  datadog/api: 
+  datadog/api:
     hostname: ${HOSTNAME}
     env: ${DD_ENV}
     service: ${DD_SERVICE}
-    version: 3
+    version: ${DD_VERSION}
+    api:
+      key: ${DD_API_KEY}
     tags:
       - service:${DD_SERVICE}
       - env:${DD_ENV}
-    api:
-      key: ${DD_API_KEY}
+      - instrumentacao:opentelemetry
 
 service:
   pipelines:
@@ -45,7 +46,3 @@ service:
       receivers: [hostmetrics]
       processors: [resource, batch]
       exporters: [datadog/api]
-#    logs:
-#      receivers: [otlp]
-#      processors: [batch]
-#      exporters: [datadog/api]
