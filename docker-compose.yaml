@@ -1,0 +1,83 @@
+version: "3.7"
+services:
+  app-otel-ext:
+    container_name: app-otel-ext
+    build: app-otel-ext
+    links:
+      - otel-collector
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: "otel-collector:4317"
+      DD_SERVICE: "app-otel-ext"
+    volumes:
+      - ./app-otel-ext/src/server.py:/code/server.py
+    ports:
+      - "5000:5000"
+    depends_on:
+      - otel-collector
+
+  app-dd-ext:
+    build: app-dd-ext
+    container_name: app-dd-ext
+    links:
+      - datadog-agent
+    environment:
+      DD_SERVICE: "app-dd-ext"
+      DD_AGENT_HOST: "datadog-agent"
+    volumes:
+      - ./app-dd-ext/src/server.py:/code/server.py  
+    ports:
+      - "5010:5000"
+    depends_on:
+      - datadog-agent
+
+  app-datadog:
+    build: app-datadog
+    container_name: app-datadog
+    links:
+      - datadog-agent
+    environment:
+      DD_SERVICE: "app-datadog"
+      DD_AGENT_HOST: "datadog-agent"
+    volumes:
+      - ./app-datadog/src/server.py:/code/server.py  
+    ports:
+      - "5020:5000"
+    depends_on:
+      - datadog-agent
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.19.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    container_name: otel-collector
+    environment:
+      DD_ENV: "otel"
+      DD_SERVICE: "app-otel-ext"
+      DD_VERSION: "6"
+      DD_API_KEY: ${DD_API_KEY}
+      HOSTNAME: "otel-collector"
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "1888:1888"   # pprof extension
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+
+  datadog-agent:
+    image: "datadog/agent"
+    container_name: agent
+    environment:
+      DD_API_KEY: "${DD_API_KEY}"
+      DD_APM_ENABLED: "true"
+      DD_PROCESS_AGENT_ENABLED: "true"
+      DD_LOG_LEVEL: "WARN"
+      DD_ENV: "otel"
+      DD_HOSTNAME: "datadog-collector"
+      #removing otel's containers
+      DD_CONTAINER_EXCLUDE: "image:.*otel.*"
+    ports:
+      - "8126:8126"
+      - "8125:8125"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro

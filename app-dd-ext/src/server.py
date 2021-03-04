@@ -7,7 +7,7 @@ from opentelemetry.exporter.datadog import (
     DatadogSpanExporter,
 )
 from opentelemetry.exporter.datadog.propagator import DatadogFormat
-#from opentelemetry.propagate import get_global_textmap, set_global_textmap
+from opentelemetry.propagators import get_global_textmap, set_global_textmap
 from opentelemetry.propagators.composite import CompositeHTTPPropagator
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.resources import Resource
@@ -30,17 +30,17 @@ trace.get_tracer_provider().add_span_processor(
     )
 )
 
-# global_textmap = get_global_textmap()
-# if isinstance(global_textmap, CompositeHTTPPropagator) and not any(
-#     isinstance(p, DatadogFormat) for p in global_textmap._propagators
-# ):
-#     set_global_textmap(
-#         CompositeHTTPPropagator(
-#             global_textmap._propagators + [DatadogFormat()]
-#         )
-#     )
-# else:
-#     set_global_textmap(DatadogFormat())
+global_textmap = get_global_textmap()
+if isinstance(global_textmap, CompositeHTTPPropagator) and not any(
+    isinstance(p, DatadogFormat) for p in global_textmap._propagators
+):
+    set_global_textmap(
+        CompositeHTTPPropagator(
+            global_textmap._propagators + [DatadogFormat()]
+        )
+    )
+else:
+    set_global_textmap(DatadogFormat())
 
 tracer = trace.get_tracer(__name__)
 
