@@ -1,2 +1,2 @@
 Sanic==20.12.2
-ddtrace
+ddtrace==0.47.0
